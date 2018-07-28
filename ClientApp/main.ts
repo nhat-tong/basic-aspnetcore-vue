@@ -4,10 +4,10 @@ import 'bootstrap';
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import AppComponent from './components/app/app.vue';
-import HomeComponent from './components/home/home.vue';
-import CounterComponent from './components/counter/counter.vue';
-import FetchDataComponent from './components/fetchdata/fetchdata.vue';
+import AppComponent from './components/app/app.component.vue';
+import HomeComponent from './components/home/home.component.vue';
+import CounterComponent from './components/counter/counter.component.vue';
+import FetchDataComponent from './components/fetchdata/fetchdata.component.vue';
 
 Vue.use(VueRouter);
 

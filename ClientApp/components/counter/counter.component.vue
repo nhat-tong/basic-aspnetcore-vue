@@ -10,4 +10,4 @@
     </div>
 </template>
 
-<script src="./counter.ts"></script>
+<script src="./counter.component.ts"></script>
