@@ -1,4 +1,6 @@
 import './css/site.css';
+import 'bootstrap/dist/css/bootstrap.css';
+
 import 'bootstrap';
 
 import Vue from 'vue';

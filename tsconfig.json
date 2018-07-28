@@ -4,14 +4,18 @@
     "experimentalDecorators": true,
     "module": "es2015",
     "moduleResolution": "node",
-    "target": "es5",
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": true,
     "sourceMap": true,
-    "skipDefaultLibCheck": true,
     "strict": true,
-    "types": ["webpack-env"]
+    "strictNullChecks": false,
+    "target": "es5",
+    "types": [ "webpack-env" ]
   },
-  "exclude": [
-      "bin",
-      "node_modules"
-  ]
+    "exclude": [
+        "bin",
+        "node_modules",
+        "wwwroot"
+    ]
 }

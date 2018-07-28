@@ -1,56 +1,95 @@
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const bundleOutputDir = './wwwroot/dist';
 
-module.exports = (env) => {
-    const isDevBuild = !(env && env.prod);
+// Setting the process' NODE_ENV to the same value as ASPNETCORE_ENVIRONMENT
+process.env.NODE_ENV = process.env.ASPNETCORE_ENVIRONMENT;
+const isDevBuild = process.env.NODE_ENV.toLowerCase() === 'development';
 
-    return [{
-        stats: { modules: false },
-        context: __dirname,
-        resolve: { extensions: [ '.js', '.ts' ] },
-        entry: { app: './ClientApp/main.ts' },
-        module: {
-            rules: [
-                {
-                    test: /\.ts$/,
-                    loader: 'ts-loader',
-                    options: {
-                        appendTsSuffixTo: [/\.vue$/]
-                    },
-                    exclude: /node_modules/
+console.log(`Build environment: ${process.env.NODE_ENV}`);
+
+module.exports = {
+    entry: {
+        app: './ClientApp/main.ts'
+    },
+    output: {
+        path: path.resolve(__dirname, './wwwroot/dist'),
+        publicPath: '/dist/',
+        filename: '[name].js'
+    },
+    module: {
+        rules: [
+            {
+                test: /\.ts$/,
+                loader: 'ts-loader',
+                options: {
+                    appendTsSuffixTo: [/\.vue$/]
                 },
-                { test: /\.vue$/, include: /ClientApp/, loader: 'vue-loader' },
-                { test: /\.css$/, use: isDevBuild ? [ 'style-loader', 'css-loader' ] : ExtractTextPlugin.extract({ use: 'css-loader?minimize' }) },
-                { test: /\.(png|jpg|jpeg|gif|svg)$/, use: 'url-loader?limit=25000' }
-            ]
-        },
-        output: {
-            path: path.join(__dirname, bundleOutputDir),
-            filename: '[name].js',
-            publicPath: 'dist/'
-        },
-        plugins: [
-            new webpack.DefinePlugin({
-                'process.env': {
-                    NODE_ENV: JSON.stringify(isDevBuild ? 'development' : 'production')
+                exclude: /node_modules/
+            },
+            {
+                test: /\.vue$/,
+                loader: 'vue-loader',
+            },
+            {
+                test: /\.css$/,
+                use: ExtractTextPlugin.extract({
+                    use: ['css-loader', 'sass-loader'],
+                    fallback: 'style-loader'
+                })
+            },
+            {
+                test: /\.(png|jpg|gif|svg|ttf|woff|woff2|eot|ico)$/,
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]?[hash]'
                 }
-            }),
-            new webpack.DllReferencePlugin({
-                context: __dirname,
-                manifest: require('./wwwroot/dist/vendor-manifest.json')
-            })
-        ].concat(isDevBuild ? [
-            // Plugins that apply in development builds only
-            new webpack.SourceMapDevToolPlugin({
-                filename: '[file].map', // Remove this line if you prefer inline source maps
-                moduleFilenameTemplate: path.relative(bundleOutputDir, '[resourcePath]') // Point sourcemap entries to the original file locations on disk
-            })
-        ] : [
-            // Plugins that apply in production builds only
-            new webpack.optimize.UglifyJsPlugin(),
-            new ExtractTextPlugin('site.css')
-        ])
-    }];
+            }
+        ]
+    },
+    resolve: {
+        extensions: ['.js', '.ts', '.vue'],
+        alias: {
+            'vue': 'vue/dist/vue.common.js'
+        }
+    },
+    devServer: {
+        historyApiFallback: true,
+        noInfo: true,
+        overlay: true
+    },
+    devtool: '#eval-source-map',
+    plugins: [
+        new webpack.ProvidePlugin({ $: 'jquery', jQuery: 'jquery' }), // Maps these identifiers to the jQuery package (because Bootstrap expects it to be a global variable)
+        new webpack.optimize.CommonsChunkPlugin({
+            name: 'common',
+            minChunks: 2
+        }),
+        new ExtractTextPlugin({
+            allChunks: true,
+            disable: isDevBuild,
+            filename: "[name].css",
+        }),
+    ]
 };
+
+if (!isDevBuild) {
+    module.exports.devtool = '#source-map';
+    // http://vue-loader.vuejs.org/en/workflow/production.html
+    module.exports.plugins = (module.exports.plugins || []).concat([
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: '"production"'
+            }
+        }),
+        new webpack.optimize.UglifyJsPlugin({
+            sourceMap: true,
+            compress: {
+                warnings: false
+            }
+        }),
+        new webpack.LoaderOptionsPlugin({
+            minimize: true
+        })
+    ]);
+}
