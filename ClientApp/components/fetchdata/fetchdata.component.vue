@@ -27,4 +27,4 @@
     </div>
 </template>
 
-<script src="./fetchdata.component.ts"></script>
+<script lang="ts" src="./fetchdata.component.ts"></script>

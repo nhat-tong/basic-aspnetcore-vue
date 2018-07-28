@@ -11,4 +11,4 @@
     </div>
 </template>
 
-<script src="./app.component.ts"></script>
+<script lang="ts" src="./app.component.ts"></script>
